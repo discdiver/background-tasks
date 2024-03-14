@@ -1,6 +1,6 @@
 # Exploring Prefect Background Task Examples
 
-This guide will familiarize you with Prefect background tasks and task servers
+This guide will familiarize you with Prefect background tasks and task servers.
 
 We'll start by running a Prefect task outside of a flow.
 Then we'll start a task server and run tasks in the background.

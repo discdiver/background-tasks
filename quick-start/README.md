@@ -181,13 +181,13 @@ Run the file and watch the work get distributed across both task servers!
 Step 8: Shut down the task servers with *control* + *c*
 
 Alright, you're able to submit tasks to multiple Prefect task servers running in the background!
-This is cool because we can observe these tasks executing in parrallel and very quickly with websockets - no polling required.
+This is cool because we can observe these tasks executing in parallel and very quickly with web sockets - no polling required.
 
 We start to see the even more of the power of background tasks when we connect to other microservices.
 
-## Example 4: Use Docker to run the FastAPI server and the Prefect task server
+## Example 3: Use Docker to run a FastAPI server and a Prefect task server
 
-This guide assumes you aren't using pyenv. If you are, that's great then you can follow the instructions in the repo README to create the virtual environments.
+This guide assumes you aren't using pyenv. If you are, that's great, then you can follow the instructions in the main [README](../README.md) to create the virtual environments.
 
 Step 1: Upgrade Docker to the latest version, if you aren't already using it.
 
@@ -228,7 +228,7 @@ There are multiple services that are engaged when the API is hit.
 
 Check out the Python files and the docker-compose.yml file to see how the services are set up.
 
-## Example 5: Use Docker to run a Flask server and the Prefect task server with Marvin
+## Example 4: Use Docker to run a Flask server and the Prefect task server with Marvin
 
 This example will allow us to ask Marvin questions and get answers from the Flask server.
 

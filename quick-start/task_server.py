@@ -12,5 +12,5 @@ if __name__ == "__main__":
 
     serve(my_b_task)
 
-    # NOTE: The serve() function accepts multiple tasks. The Task Server
-    # will listen for submitted task runs for all tasks passed in.
+    # NOTE: The serve() function accepts multiple task runs of the same task.
+    # You can start multiple task servers.

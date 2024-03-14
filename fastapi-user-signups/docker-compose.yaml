@@ -41,7 +41,7 @@ services:
       PREFECT_EXPERIMENTAL_ENABLE_TASK_SCHEDULING: True
     command: python -m fastapi_user_signups
     ports:
-      - 8000:8000 # the entrypoint for outside - from your machine - common cellery use case. submit work to api. Very common cellery pattern.
+      - 8000:8000 
     volumes:
       - task-storage:/task-storage # shared by all containers - could be storage blocck
       - .:/app

@@ -5,6 +5,7 @@ This guide will familiarize you with Prefect background tasks and task servers.
 We'll start by running a Prefect task outside of a flow.
 Then we'll start a task server and run tasks in the background.
 We'll see how we can use multiple task servers to run tasks in parallel.
+Then we create our first basic FastAPI application that submits tasks to a Prefect task server when you hit an endpoint.
 
 Then we'll move to using Docker with two examples that mimic real use cases.
 One example uses with a FastAPI server with multiple microservices.
@@ -13,9 +14,10 @@ The other example uses a Flask server with Marvin to ask an LLM questions and ge
 ## Examples
 
 1. Run a Prefect task outside of a flow
-2. Start a task server (or two) and run tasks in the background
-3. Use Docker to run a FastAPI server and a few Prefect task servers
-4. Use Docker to run a Flask server and a Prefect task server with Marvin and ask the LLM questions
+1. Start a task server (or two) and run tasks in the background
+1. Create a basic FastAPI server that submits tasks to a Prefect task server (WIP - files present, will add as #3 in the guide soon)
+1. Use Docker to run a FastAPI server and a few Prefect task servers
+1. Use Docker to run a Flask server and a Prefect task server with Marvin and ask the LLM questions
 
 ## Prefect Cloud or a Prefect server instance
 
@@ -185,7 +187,26 @@ This is cool because we can observe these tasks executing in parallel and very q
 
 We start to see the even more of the power of background tasks when we connect to other microservices.
 
-## Example 3: Use Docker to run a FastAPI server and a Prefect task server
+## Example 3: Create a basic FastAPI server that submits tasks to a Prefect task server
+
+WIP
+Install FastAPI version 0.107
+See the two files in this directory.
+Start the FastAPI server with the following command:
+
+```bash
+uvicorn first_fastapi:app --reload
+```
+
+Control C to stop the server.
+
+Start the Prefect Task server.
+
+Go to `http://127.0.0.1:8000/ptask` in the browser to submit the task!
+
+You should see the task info in the browser.
+
+## Example 4: Use Docker to run a FastAPI server and a Prefect task server
 
 This guide assumes you aren't using pyenv. If you are, that's great, then you can follow the instructions in the main [README](../README.md) to create the virtual environments.
 
@@ -228,7 +249,7 @@ There are multiple services that are engaged when the API is hit.
 
 Check out the Python files and the docker-compose.yml file to see how the services are set up.
 
-## Example 4: Use Docker to run a Flask server and the Prefect task server with Marvin
+## Example 5: Use Docker to run a Flask server and the Prefect task server with Marvin
 
 This example will allow us to ask Marvin questions and get answers from the Flask server.
 

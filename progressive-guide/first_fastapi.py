@@ -1,0 +1,22 @@
+from fastapi import FastAPI
+from prefect import task
+from first_fastapi_task_server import my_fastapi_task
+
+app = FastAPI()
+
+
+@task
+def my_b_task(name: str):
+    print(f"Hello, {name}!")
+    return f"Hello, {name}!"
+
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+
+@app.get("/ptask")
+async def prefect_task():
+    val = my_fastapi_task.submit(name="Marvin")
+    return {"message": f"Prefect Task submitted: {val}"}

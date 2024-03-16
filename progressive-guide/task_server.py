@@ -1,10 +1,12 @@
 from prefect import task
 from prefect.task_server import serve
+import asyncio
 
 
 @task
 def my_b_task(name: str):
     print(f"Hello, {name}!")
+    return f"Hello, {name}!"
 
 
 if __name__ == "__main__":

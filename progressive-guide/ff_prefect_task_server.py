@@ -8,9 +8,7 @@ def my_fastapi_task(name: str):
 
 
 if __name__ == "__main__":
-    from first_fastapi_task_server import my_fastapi_task
-
-    serve(my_fastapi_task)
+    serve(my_fastapi_task)  # doesn't require task input line here, maybe b/c async?
 
     # NOTE: The serve() function accepts multiple task runs of the same task.
     # You can start multiple task servers.

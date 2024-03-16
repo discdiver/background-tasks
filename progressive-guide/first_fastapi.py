@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from prefect import task
-from first_fastapi_task_server import my_fastapi_task
+from ff_prefect_task_server import my_fastapi_task
 
 app = FastAPI()
 

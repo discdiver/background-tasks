@@ -1,6 +1,5 @@
 from prefect import task
 from prefect.task_server import serve
-import asyncio
 
 
 @task

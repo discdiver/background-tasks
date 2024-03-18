@@ -74,9 +74,11 @@ If using a local Prefect server instance instead of Prefect Cloud, start your se
 prefect server start 
 ```
 
-## Example 1: Run a Prefect task outside a flow
+## Example 1: Run a Prefect task outside of a flow
 
-Step 1: Make a file named `greeter.py` and save the following code in it.
+Add the `@task` decorator to any Python function to define a Prefect task.
+
+Step 1: Create a file named `greeter.py` and save the following code in it.
 
 ```python
 from prefect import task 
@@ -118,7 +120,11 @@ Hit the refresh button for updates, if needed.
 
 In this example, we'll start a task server and run tasks in the background.  
 
-Step 1: Create the task and task server in the file `task_server.py`
+To run tasks in a separate process or container, you'll need to start a task server, similar to how you would run a Celery worker or an arq worker.
+The Task Server will continually receive submitted tasks to execute from Prefect's API, execute them, and report the results back to the API.
+You can run a task server by passing tasks into the `prefect.task_server.serve()` method.
+
+Step 1: Define the task and task server in the file `task_server.py`
 
 ```python
 from prefect import task
@@ -131,9 +137,6 @@ def my_background_task(name: str):
 
 
 if __name__ == "__main__":
-    from task_server import my_b_task
-    # the line above shouldn't be necessary once a fix is in place
-
     serve(my_b_task)
 ```
 
@@ -148,7 +151,7 @@ python task_server.py
 The task server is now waiting for runs of the my_background_task task.
 Let's give it some task runs.
 
-Step 3: Create a file named `task_submitter.py` and save the following code in it
+Step 3: Create a file named `task_submitter.py` and save the following code in it.
 
 ```python
 from task_server import my_b_task
@@ -164,17 +167,22 @@ Step 4: Open another terminal and run the script.
 python task_submitter.py
 ```
 
-Note that we return the task run info from the `submit` method. This way we can see the task run UUID and other information about the task run.
+Note that we return the task run object from the `submit` method.
+This way we can see the task run UUID and other information about the task run.
 
 Step 5: See the task run in the UI.
 
-Use the task run UUID to see the task run in the UI. The URL will look like this:
+Use the task run UUID to see the task run in the UI.
+The URL will look like this:
 
-<http://127.0.0.1:4200/task-runs/task-run/3ae4ad3a-d679-4bb5-9e2f-230d281f52ee>
+<http://127.0.0.1:4200/task-runs/task-run/my_task_run_uuid_goes_here>
 
-Substitute your UUID at the end of the URL. This UI navigation experience will be improved soon.
+Substitute your UUID at the end of the URL.
+Note that the UI navigation experience for task runs will be improved soon.
 
 Step 6: Start another instance of the task server.
+
+You can use multiple task servers to run tasks in parallel.
 
 In another terminal run:
 
@@ -184,7 +192,7 @@ python task_server.py
 
 Step 7: Submit multiple tasks to the task server with `map`.
 
-Modify the `task_submitter.py` file to submit multiple tasks to the task server by using the `map` method.
+Modify the `task_submitter.py` file to submit multiple tasks to the task server with different inputs by using the `map` method.
 
 ```python
 from task_server import my_b_task
@@ -200,11 +208,16 @@ Step 8: Shut down the task servers with *control* + *c*
 Alright, you're able to submit tasks to multiple Prefect task servers running in the background!
 This is cool because we can observe these tasks executing in parallel and very quickly with web sockets - no polling required.
 
-Let's wire up our background tasks to a FastAPI task server.
+Next, let's wire up our task server to a FastAPI task server.
 
 ## Example 3: Create a basic FastAPI server that submits tasks to a Prefect task server
 
-Step 1: Define two routes for the FastAPI server in a Python file.
+Step 1: Define API routes for the FastAPI server in a Python file.
+
+Let's define two routes for our FastAPI server.
+The first is a basic hello world route at the root URL to confirm that the FastAPI server is working.
+The second route, `/task`, will submit a task to the Prefect task server when the URL is hit and return information about the submitted task.
+You could name this route whatever you like.
 
 Here are the contents of [first_fastapi.py](./first_fastapi.py)
 
@@ -227,15 +240,15 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/ptask")
+@app.get("/task")
 async def prefect_task():
     val = my_fastapi_task.submit(name="Marvin")
     return {"message": f"Prefect Task submitted: {val}"}
 ```
 
-Step 2: Define the Prefect task server in a Python file.
+Step 2: Define a Prefect task server in a Python file.
 
-Here are the contents of [ff_prefect_task_server.py]
+Here are the contents of [ff_prefect_task_server.py](./ff_prefect_task_server.py)
 
 ```python
 from prefect import task
@@ -248,13 +261,10 @@ def my_fastapi_task(name: str):
 
 
 if __name__ == "__main__":
-    from ff_prefect_task_server import my_fastapi_task
-
     serve(my_fastapi_task)
-
 ```
 
-Step 3: Start the FastAPI server with hot reloads with the following command:
+Step 3: Start a FastAPI server that hot reloads when code changes with the following command:
 
 ```bash
 uvicorn first_fastapi:app --reload
@@ -262,26 +272,42 @@ uvicorn first_fastapi:app --reload
 
 Step 4: Start the Prefect Task server.
 
-Step 5: Navigate to `http://127.0.0.1:8000/ptask` in the browser to submit a task!
+In another terminal, run the following command to start the Prefect Task server.
 
-You should see the info for the submitted task in the browser.
+```bash
+python ff_prefect_task_server.py
+```
+
+Step 5: Navigate to `http://127.0.0.1:8000/task` in the browser to submit a task!
+
+You should see the info for the submitted task returned in the browser.
 
 Step 6: Stop the servers.
 
-Control C in the respective terminals to stop the servers.
+Hit `control` + `c` in the respective terminals to stop the servers.
+
+You've seen how to use a FastAPI web server to offload work to a a Prefect task server - all while gaining observability into the task runs in the Prefect UI.
+Next, let's use Docker containers with more advanced workflows to move toward productionizing our code.
 
 ## Example 4: Use Docker to run a FastAPI server and a Prefect task server
+
+The following example will simulate a new user signup workflow with multiple services.
+We'll run a Prefect server instance, a Prefect task server, and a FastAPI server in separate Docker containers.
+
+All the code files for this example live in the [`fastapi-user-signups` directory](../fastapi-user-signups).
+We've defined the FastAPI server, model, and tasks in Python files.
+The Makefile and docker-compose files are used to wire everything together.
 
 Step 1: Upgrade Docker to the latest version, if you aren't already using it.
 
 Step 2: Move into the [`fastapi-user-signups` directory](../fastapi-user-signups/).
 
-Step 3: Run `make` to pull the Docker images and build the containers.
+Step 3: Run `make` to build the Docker images.
 
-Step 4: Run `docker compose up` to start the services.
+Step 4: Run `docker compose up` to fire everyting up.
 
-The services should start up and everything should run.
-If you have issues and do some troubleshooting, you can then run the following commands to try to get things working.
+The services should start and everything should run.
+If you have issues and do some troubleshooting, you can then run the following commands to try to rebuild and fire up the services.
 
 ```bash
 make clean
@@ -291,21 +317,23 @@ docker compose up
 
 Step 5: Send a new user signup to the FastAPI server.
 
+From you terminal, run the following command to send a new user signup to the FastAPI server.
+
 ```bash
 curl -X POST http://localhost:8000/users --header "Content-Type: application/json" --data '{"email": "chris.g@prefect.io", "name": "Guidry"}'
 ```
 
-Step 5: Explore the tasks by checking out the Docker containers.
+Step 6: Explore the tasks by checking out the Docker containers.
 
-You should see that the task server is running and the FastAPI server is running.
+Inspect the Docker containers and you should see that the Prefect server instance, task server, and FastAPI server are running.
 
-There are multiple services that are engaged when the API URL is reached..
-
+There are multiple services that are engaged when the API URL is reached.
 Check out the Python files and the docker-compose.yml file to see how the services are set up.
 
-## Example 5: Use Docker to run a Flask server and the Prefect task server with Marvin
+## Example 5: Use Docker to run a Flask server and a Prefect task server with Marvin
 
-This example will allow us to ask Marvin questions and get answers from the Flask server.
+This example will allow us to ask Marvin questions and get answers from a Flask server.
+This example showcases working with an LLM and a different w
 
 Step 1: Move into the *flask-task-monitoring* directory.
 
@@ -331,6 +359,11 @@ python ask.py "What is the meaning of life?"
 
 You should receive an text answer to your question.
 Have fun asking Marvin other questions.
+
+## Next steps
+
+Way to go!
+You've seen how to use Prefect to run background tasks with a Prefect task server and several web servers.
 
 There's lots more you can do with Prefect background tasks.
 We can't wait to see what you build!

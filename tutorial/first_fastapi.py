@@ -11,7 +11,7 @@ def my_b_task(name: str):
     return f"Hello, {name}!"
 
 
-@app.get("/ptask")
+@app.get("/task")
 async def prefect_task():
     val = my_fastapi_task.submit(name="Marvin")
     return {"message": f"Prefect Task submitted: {val}"}
